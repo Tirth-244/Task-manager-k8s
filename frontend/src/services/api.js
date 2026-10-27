@@ -31,4 +31,12 @@ export const api = {
     method: 'POST',
     body: JSON.stringify({ title }),
   }),
+  updateTask: (id, updates) => request(`/tasks/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  }),
+  deleteTask: (id) => request(`/tasks/${id}`, {
+    method: 'DELETE',
+  }),
 }
+

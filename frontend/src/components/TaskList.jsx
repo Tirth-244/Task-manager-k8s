@@ -1,6 +1,6 @@
 import TaskItem from './TaskItem'
 
-function TaskList({ tasks, filter, onFilterChange, onUnsupportedAction, isLoading }) {
+function TaskList({ tasks, filter, onFilterChange, onToggleTask, onDeleteTask, isLoading }) {
   const filters = [
     { id: 'all', label: 'All tasks' },
     { id: 'pending', label: 'Pending' },
@@ -37,7 +37,14 @@ function TaskList({ tasks, filter, onFilterChange, onUnsupportedAction, isLoadin
         </div>
       ) : tasks.length ? (
         <ul className="task-list">
-          {tasks.map((task) => <TaskItem key={task.id} task={task} onUnsupportedAction={onUnsupportedAction} />)}
+          {tasks.map((task) => (
+            <TaskItem
+              key={task.id || task._id}
+              task={task}
+              onToggleTask={onToggleTask}
+              onDeleteTask={onDeleteTask}
+            />
+          ))}
         </ul>
       ) : (
         <div className="empty-state">

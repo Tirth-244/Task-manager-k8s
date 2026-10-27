@@ -47,13 +47,37 @@ function App() {
     setIsSaving(true)
     try {
       const task = await api.createTask(title.trim())
-      setTasks((current) => [...current, task])
+      setTasks((current) => [task, ...current])
       setIsModalOpen(false)
       showToast('Task created successfully.')
     } catch (error) {
       showToast(error.message, 'error')
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  async function handleToggleTask(task) {
+    const id = task.id || task._id
+    const updatedStatus = !task.completed
+    try {
+      const updated = await api.updateTask(id, { completed: updatedStatus })
+      setTasks((current) =>
+        current.map((t) => ((t.id || t._id) === id ? { ...t, ...updated } : t))
+      )
+      showToast(updatedStatus ? 'Task marked completed.' : 'Task marked pending.')
+    } catch (error) {
+      showToast(error.message || 'Failed to update task.', 'error')
+    }
+  }
+
+  async function handleDeleteTask(id) {
+    try {
+      await api.deleteTask(id)
+      setTasks((current) => current.filter((t) => (t.id || t._id) !== id))
+      showToast('Task deleted successfully.')
+    } catch (error) {
+      showToast(error.message || 'Failed to delete task.', 'error')
     }
   }
 
@@ -91,7 +115,14 @@ function App() {
                 <StatCard label="Completed" value={completedTasks.length} helper={tasks.length ? `${Math.round((completedTasks.length / tasks.length) * 100)}% of all tasks` : 'No tasks yet'} tone="green" icon="✓" />
                 <StatCard label="Pending" value={pendingTasks.length} helper="Ready to be completed" tone="orange" icon="◷" />
               </div>
-              <TaskList tasks={visibleTasks} filter={filter} onFilterChange={setFilter} onUnsupportedAction={(message) => showToast(message, 'info')} isLoading={isLoading} />
+              <TaskList
+                tasks={visibleTasks}
+                filter={filter}
+                onFilterChange={setFilter}
+                onToggleTask={handleToggleTask}
+                onDeleteTask={handleDeleteTask}
+                isLoading={isLoading}
+              />
             </>
           )}
         </main>
